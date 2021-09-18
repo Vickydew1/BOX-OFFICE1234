@@ -1,46 +1,57 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable no-underscore-dangle */
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { apiGet } from '../mise/config';
+
+import ShowMainData from '../components/Show/ShowMainData';
+import Details from '../components/Show/Detail';
+import Seasons from '../components/Show/Seasons';
+import Cast from '../components/Show/Cast';
+import { InfoBlock, ShowPageWrapper } from './Show.styled';
+import { useShow } from '../mise/custom-hooks';
 
 const Show = () => {
   const { id } = useParams();
 
-  const [show, setShow] = useState(null);
-  const [isLoading, setisLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    // eslint-disable-next-line no-template-curly-in-string
-    apiGet('/shows/${id}?embed[]=seasons&embed[]=cast')
-      .then(results => {
-        if (isMounted) {
-          setShow(results);
-          setisLoading(false);
-        }
-      })
-      .catch(err => {
-        if (isMounted) {
-          setError(err.message);
-          setisLoading(false);
-        }
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, [id]);
-
-  // eslint-disable-next-line no-console
-  console.log('show', show);
+  const [show, isLoading, error] = useShow(id);
 
   if (isLoading) {
-    return <div>Date iss being loaded</div>;
+    return <div>Data is being loaded</div>;
   }
 
   if (error) {
-    return <div>Error Occured:(error;)</div>;
+    return <div>Error occured: {error}</div>;
   }
-  return <div>ffxx</div>;
+
+  return (
+    <ShowPageWrapper>
+      <ShowMainData
+        image={show.image}
+        name={show.name}
+        rating={show.rating}
+        summary={show.summary}
+        tags={show.genres}
+      />
+
+      <InfoBlock>
+        <h2>Details</h2>
+        <Details
+          status={show.status}
+          network={show.network}
+          premiered={show.premiered}
+        />
+      </InfoBlock>
+
+      <InfoBlock>
+        <h2>Seasons</h2>
+        <Seasons seasons={show._embedded.seasons} />
+      </InfoBlock>
+
+      <InfoBlock>
+        <h2>Cast</h2>
+        <Cast cast={show._embedded.cast} />
+      </InfoBlock>
+    </ShowPageWrapper>
+  );
 };
 
 export default Show;

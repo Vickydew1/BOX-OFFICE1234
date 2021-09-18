@@ -3,9 +3,10 @@ import Actorgrid from '../components/Actor/Actorgrid';
 import MainPageLayout from '../components/MainPageLayout';
 import ShowGrid from '../components/Show/ShowGrid';
 import { apiGet } from '../mise/config';
+import { useLastquery } from '../mise/custom-hooks';
 
 const Home = () => {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useLastquery();
   const [results, setResults] = useState(null);
   const [searchOption, setSearchOption] = useState('shows');
 
